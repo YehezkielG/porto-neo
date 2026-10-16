@@ -1,6 +1,6 @@
-# Yehezkiel Haganta Portfolio Frontend
+﻿# Yehezkiel Haganta Portfolio Frontend
 
-Frontend ini menggunakan **Vite, React, TypeScript, Tailwind CSS v4**, dan React Router. Halaman publik dan dashboard admin tetap memakai backend PHP di `../backend`. Kiro memakai API Next.js yang di-host secara terpisah.
+Frontend ini dibuat dengan **Vite, React, TypeScript, dan Tailwind CSS v4** untuk menampilkan portfolio publik dari backend PHP serta menyediakan Kiro AI melalui API terpisah. Pengelolaan konten berada di luar build ini.
 
 ## Menjalankan lokal
 
@@ -11,7 +11,7 @@ Copy-Item .env.example .env
 npm run dev
 ```
 
-Vite tersedia di `http://localhost:5173`. Pastikan PHP API berjalan dan CORS backend PHP mengizinkan origin tersebut. Untuk Kiro lokal, `KIRO_ALLOWED_ORIGINS` di project Next.js juga harus memuat `http://localhost:5173`.
+Vite tersedia di `http://localhost:5173`. Pastikan endpoint publik backend PHP dapat dijangkau browser dan CORS backend mengizinkan origin tersebut. Untuk Kiro lokal, `KIRO_ALLOWED_ORIGINS` di project API harus memuat `http://localhost:5173`.
 
 ## Variabel frontend
 
@@ -21,7 +21,7 @@ Atur `VITE_API_BASE_URL` di `.env` ke base URL backend PHP, misalnya:
 VITE_API_BASE_URL=http://localhost:8000
 ```
 
-Jika variabel ini kosong, frontend memakai `http://localhost:8000`. Variabel berawalan `VITE_` masuk ke bundle browser; jangan simpan password, token layanan, atau secret di dalamnya.
+Jika variabel ini kosong, frontend memakai `http://localhost:8000`. Variabel berawalan `VITE_` masuk ke bundle browser; jangan simpan secret layanan di dalamnya.
 
 `VITE_KIRO_API_URL` menentukan endpoint Kiro. Nilai default-nya adalah `https://yehezkiel-haganta.vercel.app/api/ask-kiel`.
 
@@ -40,20 +40,20 @@ npm run lint      # ESLint
 ```text
 src/
 ├── main.tsx                 # entry React
-├── App.tsx                  # provider dan route
+├── App.tsx                  # aplikasi publik dan provider tema
 ├── index.css                # Tailwind, tema, dan style dasar
-├── types.ts                 # tipe data portfolio dan form
-├── api/backendApi.ts        # Axios client PHP
-├── context/                 # sesi login dan tema
-├── pages/                   # public, login, dashboard, logout
-└── components/              # section publik, Kiro, dan editor admin
+├── types.ts                 # tipe data portfolio publik
+├── api/backendApi.ts        # Axios client untuk endpoint publik PHP
+├── context/ThemeContext.tsx # pengaturan tema
+├── pages/Public.tsx         # halaman portfolio
+└── components/              # section publik, Kiro, ikon, dan animasi
 ```
 
-`/` menampilkan profil, About Me, proyek, pengalaman, skill, technical domains, Kiro, links, dan kontak. `/login` dan `/dashboard` menyediakan editor konten; perubahan data tetap divalidasi oleh backend PHP. Token admin disimpan di `localStorage`, lalu dikirim bersama request admin.
+Halaman `/` menampilkan profil, About Me, proyek, pengalaman, skill, technical domains, Kiro, links, dan kontak. Konten dibaca melalui endpoint publik; fitur mengubah konten tidak ada di frontend ini.
 
 ## Layanan Kiro
 
-`src/components/KiroAI.tsx` mengirim pertanyaan dan riwayat chat ke endpoint yang diatur lewat `VITE_KIRO_API_URL`. Origin frontend harus diizinkan oleh `KIRO_ALLOWED_ORIGINS` di project Next.js yang melayani endpoint. Nilainya berupa origin saja, seperti `http://localhost:5173` atau `https://domain-frontend.example`, tanpa path atau garis miring di akhir. Komponen mencatat payload request dan sumber RAG di console browser untuk debugging, sehingga teks pesan yang dikirim terlihat melalui Developer Tools.
+`src/components/KiroAI.tsx` mengirim pertanyaan dan riwayat chat ke endpoint yang diatur lewat `VITE_KIRO_API_URL`. Origin frontend harus diizinkan oleh `KIRO_ALLOWED_ORIGINS` di project API yang melayani endpoint. Nilainya berupa origin saja, seperti `http://localhost:5173` atau `https://domain-frontend.example`, tanpa path atau garis miring di akhir.
 
 ## Deploy
 

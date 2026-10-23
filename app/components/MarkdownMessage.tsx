@@ -3,7 +3,7 @@ import { Fragment, type ReactNode } from 'react';
 const safeLink = (url: string) => /^(https?:|mailto:)/i.test(url.trim()) ? url.trim() : null;
 
 function renderInline(source: string, keyPrefix = 'inline'): ReactNode[] {
-  const pattern = /(`[^`]+`|\*\*[^*]+\*\*|__[^_]+__|~~[^~]+~~|\*[^*\n]+\*|_[^_\n]+_|\[[^\]]+\]\([^)]+\))/g;
+  const pattern = /(`[^`]+`|\*\*[^*]+\*\*|__[^_]+__|~~[^~]+~~|\*[^*\n]+\*|_[^_\n]+_|\[[^\]]+\]\([^)]+\)|<https?:\/\/[^>\s]+>|https?:\/\/[^\s<]+)/g;
   const parts = source.split(pattern).filter(Boolean);
 
   return parts.map((part, index) => {
@@ -19,6 +19,15 @@ function renderInline(source: string, keyPrefix = 'inline'): ReactNode[] {
       const href = safeLink(link[2]);
       return href
         ? <a key={key} href={href} target="_blank" rel="noreferrer">{link[1]}</a>
+        : <Fragment key={key}>{part}</Fragment>;
+    }
+    if (part.startsWith('<https://') || part.startsWith('<http://') || /^https?:\/\//i.test(part)) {
+      const rawUrl = part.startsWith('<') ? part.slice(1, -1) : part;
+      const punctuation = rawUrl.match(/[.,!?;:]+$/)?.[0] ?? '';
+      const url = rawUrl.slice(0, rawUrl.length - punctuation.length);
+      const href = safeLink(url);
+      return href
+        ? <Fragment key={key}><a href={href} target="_blank" rel="noopener noreferrer">{url}</a>{punctuation}</Fragment>
         : <Fragment key={key}>{part}</Fragment>;
     }
     return <Fragment key={key}>{part}</Fragment>;
